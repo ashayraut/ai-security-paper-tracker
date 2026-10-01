@@ -12,12 +12,21 @@ ARXIV_API_URL = "http://export.arxiv.org/api/query"
 DEFAULT_DAYS = 7
 
 SEARCH_TERMS: list[str] = [
+    # AI security
     "LLM security",
     "LLM safety",
     "prompt injection",
-    "AI agent vulnerabilities",
     "adversarial attacks on language models",
+    "jailbreak language model",
+    "model extraction attack",
+    "backdoor attack language model",
+    # AI agent security
+    "AI agent vulnerabilities",
+    "AI agent security",
     "red teaming AI agents",
+    "agentic AI safety",
+    "tool use attack agent",
+    "multi-agent system security",
 ]
 
 # Atom XML namespace used by arXiv API responses
@@ -53,7 +62,7 @@ def _query_arxiv(
     search_term: str, date_from: str, date_to: str, max_results: int
 ) -> list[Paper]:
     """Execute a single arXiv API query and parse the Atom XML response."""
-    search_query = f"all:{search_term} AND submittedDate:[{date_from} TO {date_to}]"
+    search_query = f'(ti:"{search_term}" OR abs:"{search_term}") AND submittedDate:[{date_from} TO {date_to}]'
 
     params = urllib.parse.urlencode(
         {
