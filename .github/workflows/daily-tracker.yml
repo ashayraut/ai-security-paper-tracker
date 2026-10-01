@@ -1,0 +1,37 @@
+name: Daily Paper Digest
+
+on:
+  schedule:
+    - cron: '0 8 * * *'   # 08:00 UTC daily
+  workflow_dispatch:        # allow manual runs
+
+jobs:
+  fetch-papers:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Fetch papers
+        # CI=true suppresses the webbrowser.open call on headless runners.
+        # Flask server is not started here; email_report.py runs headlessly.
+        env:
+          CI: 'true'
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          FROM_ADDR: ${{ secrets.FROM_ADDR }}
+          TO_ADDR: ${{ secrets.TO_ADDR }}
+        run: |
+          if [ -n "$FROM_ADDR" ] && [ -n "$TO_ADDR" ]; then
+            python email_report.py
+          else
+            echo "Email secrets not configured — skipping digest send."
+            echo "Set FROM_ADDR and TO_ADDR secrets to enable email delivery."
+          fi
